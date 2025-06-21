@@ -1,16 +1,15 @@
 # models.py
 
-# User profile schema
+import json
 from datetime import datetime
-from typing import Literal
-from typing import Optional
+from typing import Any, Literal, Optional
 
 from langgraph.graph import MessagesState
 from pydantic import BaseModel, Field
 
 
 class Profile(BaseModel):
-    """memory中存储user的schema。以profile形式"""
+    """用户信息的持久化记忆存储。以profile形式"""
     name: Optional[str] = Field(description="The user's name", default=None)
     location: Optional[str] = Field(description="The user's location", default=None)
     job: Optional[str] = Field(description="The user's job", default=None)
@@ -23,9 +22,19 @@ class Profile(BaseModel):
         default_factory=list
     )
 
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> "Profile":
+        interests = data.get("interests")
+        if isinstance(interests, str):
+            try:
+                data["interests"] = json.loads(interests)
+            except json.JSONDecodeError:
+                data["interests"] = []
+        return cls.model_validate(data)
 
-# To Do schema
+
 class ToDo(BaseModel):
+    """to do 事项的结构化存储。collection形式"""
     task: str = Field(description="The task to be completed.")
     time_to_complete: Optional[int] = Field(description="Estimated time to complete the task (minutes).")
     deadline: Optional[datetime] = Field(
@@ -46,10 +55,36 @@ class ToDo(BaseModel):
         default_factory=list
     )
 
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> "ToDo":
+        if "solutions" in data and isinstance(data["solutions"], str):
+            try:
+                data["solutions"] = json.loads(data["solutions"])
+            except json.JSONDecodeError:
+                data["solutions"] = []
+
+        if "planned_edits" in data and isinstance(data["planned_edits"], str):
+            try:
+                data["planned_edits"] = json.loads(data["planned_edits"])
+            except json.JSONDecodeError:
+                data["planned_edits"] = []
+
+        if "deadline" in data and isinstance(data["deadline"], str):
+            try:
+                data["deadline"] = datetime.fromisoformat(data["deadline"])
+            except ValueError:
+                data["deadline"] = None
+
+        return cls.model_validate(data)
+
 class Instruction(BaseModel):
+    """用户偏好的结构化存储。以collection形式"""
     language: str = Field(description="The language of the user, for task storage and reply")
     content: str = Field(description="The instruction text")
 
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> "Instruction":
+        return cls.parse_obj(data)
 
 class CustomState(MessagesState, total=False):
     """继承自 MessagesState，增加 search_results 用于保存网络搜索结果。"""
