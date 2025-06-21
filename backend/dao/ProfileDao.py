@@ -1,3 +1,4 @@
+import json
 from typing import Optional
 from backend.dao.BaseDao import BaseDao
 from backend.agent.models import Profile
@@ -46,7 +47,7 @@ class ProfileDao(BaseDao[Profile]):
         
         try:
             profile_data = profile.model_dump(exclude_none=True)
-            self._execute_query(sql, (f'profile.{user_id}', user_id, profile_data))
+            self._execute_write(sql, (f'profile.{user_id}', user_id, json.dumps(profile_data)))
             return True
         except Exception as e:
             print(f"[ProfileDao] 创建用户档案失败: {e}")
@@ -60,7 +61,7 @@ class ProfileDao(BaseDao[Profile]):
         """
         try:
             profile_data = profile.model_dump(exclude_none=True)
-            self._execute_query(sql, (profile_data, f'profile.{user_id}'))
+            self._execute_write(sql, (json.dumps(profile_data), f'profile.{user_id}'))
             return True
         except Exception as e:
             print(f"[ProfileDao] 更新用户档案失败: {e}")

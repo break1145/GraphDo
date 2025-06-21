@@ -30,6 +30,12 @@ class Profile(BaseModel):
                 data["interests"] = json.loads(interests)
             except json.JSONDecodeError:
                 data["interests"] = []
+        connections = data.get("connections")
+        if isinstance(connections, str):
+            try:
+                data["connections"] = json.loads(connections)
+            except json.JSONDecodeError:
+                data["connections"] = []
         return cls.model_validate(data)
 
 
