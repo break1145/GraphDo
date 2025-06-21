@@ -1,26 +1,25 @@
 # core.py
-import os
+
 import uuid
 from typing import List
-from dotenv import load_dotenv
 from langchain_core.messages import BaseMessage, HumanMessage
+from langgraph.checkpoint.memory import MemorySaver
 from langgraph.checkpoint.postgres import PostgresSaver
 from langgraph.constants import START
 from langgraph.graph import StateGraph
+from langgraph.store.memory import InMemoryStore
 from langgraph.store.postgres import PostgresStore
-from psycopg_pool import ConnectionPool
-from psycopg.rows import dict_row
-
 from .models import CustomState
 from .nodes import (
     task_mAIstro, update_profile, update_todos, update_instructions,
     route_message,
 )
+from ..utils.pg_pool import get_pg_pool
 
 
 class ToDoAgent:
-    def __init__(self):
-        self.connection_pool = None
+    def __init__(self, connection_pool=None):
+        self.connection_pool = connection_pool or get_pg_pool()
         self.across_thread_memory = None
         self.within_thread_memory = None
         self.graph = None
@@ -28,18 +27,7 @@ class ToDoAgent:
         self.setup()
 
     def setup(self):
-        load_dotenv()
-        db_uri = os.getenv("DB_URI")
         try:
-            # 尝试建立pg连接池
-            self.connection_pool = ConnectionPool(
-                conninfo=db_uri,
-                kwargs={
-                    "row_factory": dict_row,
-                    "autocommit": True
-                }
-            )
-
             self.across_thread_memory = PostgresStore(self.connection_pool)
             self.within_thread_memory = PostgresSaver(self.connection_pool)
 
@@ -47,17 +35,13 @@ class ToDoAgent:
             self.within_thread_memory.setup()
 
             print("[ToDoAgent] PostgreSQL连接成功")
-
         except Exception as e:
             print(f"[ToDoAgent] PostgreSQL连接失败: {e}")
             print("[ToDoAgent] 回退到内存存储")
-            from langgraph.checkpoint.memory import MemorySaver
-            from langgraph.store.memory import InMemoryStore
             self.across_thread_memory = InMemoryStore()
             self.within_thread_memory = MemorySaver()
 
         self.graph = self._build_graph()
-        print("[ToDoAgent] graph编译成功")
 
     def _build_graph(self):
         builder = StateGraph(CustomState)
