@@ -2,8 +2,11 @@ from litestar import Litestar, get, post, Controller
 from litestar.di import Provide
 from pydantic import BaseModel, field_validator
 from litestar.connection import Request
+from litestar.response import ServerSentEvent
 from backend.service.AgentService import AgentService
 import traceback
+import json
+
 
 class ChatInput(BaseModel):
     user_id: str
@@ -40,6 +43,27 @@ class AgentChatController(Controller):
         except Exception as e:
             traceback.print_exc()
             return {"error": str(e)}
+
+    @post("/chat/stream")
+    async def chat_with_agent_stream(self, data: ChatInput, agent_service: AgentService) -> ServerSentEvent:
+        """
+        流式对话接口（SSE），用于和agent交互
+        """
+        async def event_generator():
+            try:
+                for chunk in agent_service.chat_with_agent_stream(
+                    user_id=data.user_id,
+                    input_text=data.input
+                ):
+                    if hasattr(chunk, 'content'):
+                        yield {"data": json.dumps({"response": chunk.content})}
+                    else:
+                        yield {"data": json.dumps({"response": str(chunk)})}
+            except Exception as e:
+                traceback.print_exc()
+                yield {"data": json.dumps({"error": str(e)})}
+
+        return ServerSentEvent(event_generator())
 
     @get("/todos/{user_id:str}")
     async def get_todos(self, user_id: str, agent_service: AgentService) -> dict:

@@ -27,6 +27,15 @@ class AgentService:
             result.update(client_info)
             
         return result
+
+    def chat_with_agent_stream(self, user_id: str, input_text: str):
+        """
+        处理与agent的流式对话业务逻辑
+        :param user_id: 用户ID
+        :param input_text: 输入文本
+        :return: 流式响应生成器
+        """
+        return self.agent.chat(user_id=user_id, input=input_text, stream=True)
     
     async def get_user_todos(self, user_id: str) -> dict:
         """
