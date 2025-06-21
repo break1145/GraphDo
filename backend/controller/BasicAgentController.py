@@ -14,17 +14,6 @@ class ChatInput(BaseModel):
 class AgentChatController(Controller):
     path = "/agent"
 
-    @get("/chat/test/{user_id:str}")
-    async def chat_with_agent(self, user_id: str) -> dict:
-        try:
-            response = agent.chat(user_id=user_id, input="我需要准备考试", stream=False)
-            print("[Route] Response from agent.chat:", response)
-
-            return {"response": response.content}
-        except Exception as e:
-            traceback.print_exc()
-            return {"error": str(e)}
-
     @post("/chat")
     async def chat_with_agent(self, data: ChatInput, request: Request) -> dict:
         """
@@ -56,6 +45,34 @@ class AgentChatController(Controller):
         try:
             todos = agent.get_todos(user_id=user_id)
             return {"response": todos}
+        except Exception as e:
+            traceback.print_exc()
+            return {"error": str(e)}
+
+    @get("/profile/{user_id:str}")
+    async def get_profile(self, user_id: str) -> dict:
+        """
+        获取用户档案信息
+        :param user_id: 用户ID
+        :return: 包含用户档案的字典
+        """
+        try:
+            profile = agent.get_profile(user_id=user_id)
+            return {"response": profile}
+        except Exception as e:
+            traceback.print_exc()
+            return {"error": str(e)}
+
+    @get("/instructions/{user_id:str}")
+    async def get_instructions(self, user_id: str) -> dict:
+        """
+        获取用户偏好说明
+        :param user_id: 用户ID
+        :return: 包含用户偏好说明的字典
+        """
+        try:
+            instructions = agent.get_instructions(user_id=user_id)
+            return {"response": instructions}
         except Exception as e:
             traceback.print_exc()
             return {"error": str(e)}

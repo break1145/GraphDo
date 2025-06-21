@@ -61,13 +61,9 @@ def task_mAIstro(state: CustomState, config: RunnableConfig, store: BaseStore):
 
     system_msg = MODEL_SYSTEM_MESSAGE.format(user_profile=user_profile, todo=todo, instructions=instructions)
 
-    search_context = state.get("search_results", [])
     # Respond using memory as well as the chat history
     response = model.bind_tools([UpdateMemory], parallel_tool_calls=False).invoke(
-        [
-            SystemMessage(content=system_msg),
-            HumanMessage(content=state.get("search_results", "")),  # 明确作为 human 提供的上下文
-        ] + state["messages"]
+            [SystemMessage(content=system_msg)] + state["messages"]
     )
     return {"messages": [response]}
 

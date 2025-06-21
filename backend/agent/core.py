@@ -147,12 +147,12 @@ class ToDoAgent:
     def get_profile(self, user_id: str):
         """查看用户档案"""
         memories = self.across_thread_memory.search(("profile", user_id))
-        return memories[0].value if memories else None
+        return [memory.value for memory in memories]
 
     def get_instructions(self, user_id: str):
         """查看偏好说明"""
         memories = self.across_thread_memory.search(("instructions", user_id))
-        return memories[0].value if memories else None
+        return [memory.value for memory in memories]
 
     def __del__(self):
         """清理连接池"""

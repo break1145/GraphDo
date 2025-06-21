@@ -1,5 +1,5 @@
 from litestar import Litestar, get
-from backend.controller.AgentChatController import AgentChatController
+from backend.controller.BasicAgentController import AgentChatController
 
 
 @get("/")
