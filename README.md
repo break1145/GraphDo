@@ -1,7 +1,9 @@
 # GraphDo
 An intelligent ToDo agent powered by LangGraph, built for managing and reasoning over daily tasks.
 
-USE `vue3 + litestar`, and `langgraph + langchain + openai`
+Use `langgraph + langchain + openai` for agent
+And  `vue3 + litestar + postgreSQL` for web app
+
 
 run: 
 ```bash
