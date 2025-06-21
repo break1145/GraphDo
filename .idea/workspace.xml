@@ -4,14 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="2f302427-ce44-4ab2-b6e4-a9082ecbcdca" name="更改" comment="[init] 添加pycharm 运行配置">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    <list default="true" id="2f302427-ce44-4ab2-b6e4-a9082ecbcdca" name="更改" comment="[feat] 记忆模块 由 in memory store 修改为 postgresql store">
       <change beforePath="$PROJECT_DIR$/backend/.env" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/.env.example" beforeDir="false" afterPath="$PROJECT_DIR$/backend/.env.example" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/agent/core.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/agent/core.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/agent/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/agent/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/controller/AgentChatController.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/controller/AgentChatController.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -107,7 +101,7 @@
       <updated>1750470092190</updated>
       <workItem from="1750470093245" duration="7309000" />
       <workItem from="1750477523347" duration="2254000" />
-      <workItem from="1750482309656" duration="2544000" />
+      <workItem from="1750482309656" duration="2898000" />
     </task>
     <task id="LOCAL-00001" summary="[init] 初始化后端仓库">
       <option name="closed" value="true" />
@@ -189,7 +183,15 @@
       <option name="project" value="LOCAL" />
       <updated>1750480947095</updated>
     </task>
-    <option name="localTasksCounter" value="11" />
+    <task id="LOCAL-00011" summary="[feat] 记忆模块 由 in memory store 修改为 postgresql store">
+      <option name="closed" value="true" />
+      <created>1750485232959</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1750485232959</updated>
+    </task>
+    <option name="localTasksCounter" value="12" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -205,7 +207,8 @@
     <MESSAGE value="[feat] 优化格式，将agent包装为可调用的api" />
     <MESSAGE value="[feat] 使用controller包装请求" />
     <MESSAGE value="[init] 添加pycharm 运行配置" />
-    <option name="LAST_COMMIT_MESSAGE" value="[init] 添加pycharm 运行配置" />
+    <MESSAGE value="[feat] 记忆模块 由 in memory store 修改为 postgresql store" />
+    <option name="LAST_COMMIT_MESSAGE" value="[feat] 记忆模块 由 in memory store 修改为 postgresql store" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/todoagent1$litestar.coverage" NAME="litestar 覆盖结果" MODIFIED="1750484615870" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="C:\Users\break\PycharmProjects\todoagent1\backend" />

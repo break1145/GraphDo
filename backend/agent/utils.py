@@ -1,8 +1,5 @@
 # utils.py
 
-from trustcall import create_extractor
-from langchain_openai import ChatOpenAI
-
 # Inspect the tool calls made by Trustcall
 class Spy:
     def __init__(self):

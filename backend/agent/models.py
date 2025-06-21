@@ -2,8 +2,8 @@
 
 # User profile schema
 from datetime import datetime
-from typing import Optional, Literal
-from typing import List, Dict, Optional
+from typing import Literal
+from typing import Optional
 
 from langgraph.graph import MessagesState
 from pydantic import BaseModel, Field

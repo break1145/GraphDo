@@ -4,17 +4,15 @@ from langchain_core.messages import SystemMessage, merge_message_runs, HumanMess
 from langchain_core.runnables import RunnableConfig
 from langgraph.store.base import BaseStore
 from typing import Literal, TypedDict
-
 from langgraph.constants import END
 from trustcall import create_extractor
 from .models import Profile, ToDo, CustomState
 from .utils import Spy, extract_tool_info
 from .constants import MODEL_SYSTEM_MESSAGE, TRUSTCALL_INSTRUCTION, CREATE_INSTRUCTIONS
-
-
 from langchain_openai import ChatOpenAI
 import os
 from dotenv import load_dotenv
+
 
 load_dotenv()
 
