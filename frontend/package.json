@@ -11,11 +11,16 @@
     "type-check": "vue-tsc --build"
   },
   "dependencies": {
-    "vue": "^3.5.13"
+    "@vueuse/core": "^13.4.0",
+    "@vueuse/motion": "^3.0.3",
+    "axios": "^1.10.0",
+    "naive-ui": "^2.42.0",
+    "vue": "^3.5.13",
+    "vue-router": "^4.5.1"
   },
   "devDependencies": {
     "@tsconfig/node22": "^22.0.1",
-    "@types/node": "^22.14.0",
+    "@types/node": "^22.15.32",
     "@vitejs/plugin-vue": "^5.2.3",
     "@vue/tsconfig": "^0.7.0",
     "autoprefixer": "^10.4.21",
