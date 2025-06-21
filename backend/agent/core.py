@@ -1,11 +1,15 @@
 # core.py
+import os
 import uuid
 from typing import List
-from langchain_core.messages import BaseMessage, HumanMessage, AIMessage
-from langgraph.checkpoint.memory import MemorySaver
-from langgraph.constants import START, END
-from langgraph.store.memory import InMemoryStore
+from dotenv import load_dotenv
+from langchain_core.messages import BaseMessage, HumanMessage
+from langgraph.checkpoint.postgres import PostgresSaver
+from langgraph.constants import START
 from langgraph.graph import StateGraph
+from langgraph.store.postgres import PostgresStore
+from psycopg_pool import ConnectionPool
+from psycopg.rows import dict_row
 
 from .models import CustomState
 from .nodes import (
@@ -16,12 +20,44 @@ from .nodes import (
 
 class ToDoAgent:
     def __init__(self):
-        # 初始化 memory
-        self.across_thread_memory = InMemoryStore()
-        self.within_thread_memory = MemorySaver()
+        self.connection_pool = None
+        self.across_thread_memory = None
+        self.within_thread_memory = None
+        self.graph = None
 
-        # 构建 graph
+        self.setup()
+
+    def setup(self):
+        load_dotenv()
+        db_uri = os.getenv("DB_URI")
+        try:
+            # 尝试建立pg连接池
+            self.connection_pool = ConnectionPool(
+                conninfo=db_uri,
+                kwargs={
+                    "row_factory": dict_row,
+                    "autocommit": True
+                }
+            )
+
+            self.across_thread_memory = PostgresStore(self.connection_pool)
+            self.within_thread_memory = PostgresSaver(self.connection_pool)
+
+            self.across_thread_memory.setup()
+            self.within_thread_memory.setup()
+
+            print("[ToDoAgent] PostgreSQL连接成功")
+
+        except Exception as e:
+            print(f"[ToDoAgent] PostgreSQL连接失败: {e}")
+            print("[ToDoAgent] 回退到内存存储")
+            from langgraph.checkpoint.memory import MemorySaver
+            from langgraph.store.memory import InMemoryStore
+            self.across_thread_memory = InMemoryStore()
+            self.within_thread_memory = MemorySaver()
+
         self.graph = self._build_graph()
+        print("[ToDoAgent] graph编译成功")
 
     def _build_graph(self):
         builder = StateGraph(CustomState)
@@ -49,7 +85,15 @@ class ToDoAgent:
             thread_id: str = None,
             stream: bool = False,
     ):
-        """对话方法：传入消息并获取响应"""
+        """
+        对话方法：传入消息并获取响应
+        :param user_id: 用户id，与记忆关联
+        :param input: 输入信息
+        :param thread_id: 对话id
+        :param stream: 是否流式返回
+        :return: if stream: 返回流式生成器; else: 返回llm invoke的响应
+        """
+
         try:
             print(f"[Chat] user_id={user_id}, input={input}")
 
@@ -109,3 +153,11 @@ class ToDoAgent:
         """查看偏好说明"""
         memories = self.across_thread_memory.search(("instructions", user_id))
         return memories[0].value if memories else None
+
+    def __del__(self):
+        """清理连接池"""
+        if hasattr(self, 'connection_pool'):
+            try:
+                self.connection_pool.close()
+            except:
+                pass

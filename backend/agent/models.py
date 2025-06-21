@@ -24,7 +24,7 @@ class Profile(BaseModel):
     )
 
 
-# ToDo schema
+# To Do schema
 class ToDo(BaseModel):
     task: str = Field(description="The task to be completed.")
     time_to_complete: Optional[int] = Field(description="Estimated time to complete the task (minutes).")
