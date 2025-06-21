@@ -138,10 +138,10 @@ class ToDoAgent:
         memories = self.across_thread_memory.search(("instructions", user_id))
         return [memory.value for memory in memories]
 
-    def __del__(self):
-        """清理连接池"""
-        if hasattr(self, 'connection_pool'):
-            try:
-                self.connection_pool.close()
-            except:
-                pass
+    # def __del__(self):
+    #     """清理连接池"""
+    #     if hasattr(self, 'connection_pool'):
+    #         try:
+    #             self.connection_pool.close()
+    #         except:
+    #             pass

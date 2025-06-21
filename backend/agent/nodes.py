@@ -6,7 +6,7 @@ from langgraph.store.base import BaseStore
 from typing import Literal, TypedDict
 from langgraph.constants import END
 from trustcall import create_extractor
-from .models import Profile, ToDo, CustomState
+from .models import Profile, ToDo, CustomState, Instruction
 from .utils import Spy, extract_tool_info
 from .constants import MODEL_SYSTEM_MESSAGE, TRUSTCALL_INSTRUCTION, CREATE_INSTRUCTIONS
 from langchain_openai import ChatOpenAI
@@ -54,10 +54,7 @@ def task_mAIstro(state: CustomState, config: RunnableConfig, store: BaseStore):
     # Retrieve custom instructions
     namespace = ("instructions", user_id)
     memories = store.search(namespace)
-    if memories:
-        instructions = memories[0].value
-    else:
-        instructions = ""
+    instructions = "\n".join(f"{mem.value}" for mem in memories)
 
     system_msg = MODEL_SYSTEM_MESSAGE.format(user_profile=user_profile, todo=todo, instructions=instructions)
 
@@ -162,25 +159,25 @@ def update_todos(state: CustomState, config: RunnableConfig, store: BaseStore):
 
 
 def update_instructions(state: CustomState, config: RunnableConfig, store: BaseStore):
-    """Reflect on the chat history and update the memory collection."""
-
-    # Get the user ID from the config
     user_id = config["configurable"]["user_id"]
-
     namespace = ("instructions", user_id)
 
-    existing_memory = store.get(namespace, "user_instructions")
+    existing_items = store.search(namespace)
+    existing_instructions = [item.value.get("content") for item in existing_items] if existing_items else []
 
-    # Format the memory in the system prompt
-    system_msg = CREATE_INSTRUCTIONS.format(current_instructions=existing_memory.value if existing_memory else None)
-    new_memory = model.invoke([SystemMessage(content=system_msg)] + state['messages'][:-1] + [
-        HumanMessage(content="Please update the instructions based on the conversation")])
+    current_text = "\n".join(existing_instructions)
+    system_msg = CREATE_INSTRUCTIONS.format(current_instructions=current_text)
+    new_memory = model.invoke(
+        [SystemMessage(content=system_msg)] + state['messages'][:-1] + [
+            HumanMessage(content="Please update the instructions based on the conversation, only return the instructions that need update")]
+    )
 
-    # Overwrite the existing memory in the store
-    key = "user_instructions"
-    store.put(namespace, key, {"memory": new_memory.content})
+    new_key = str(uuid.uuid4())
+    store.put(namespace, new_key, Instruction(language="zh-CN", content=new_memory.content).model_dump())
+
     tool_calls = state['messages'][-1].tool_calls
-    return {"messages": [{"role": "tool", "content": "updated instructions", "tool_call_id": tool_calls[0]['id']}]}
+    return {"messages": [{"role": "tool", "content": "appended instructions", "tool_call_id": tool_calls[0]['id']}]}
+
 
 
 def route_message(state: CustomState, config: RunnableConfig, store: BaseStore) -> Literal[END, "update_todos", "update_instructions", "update_profile"]:
