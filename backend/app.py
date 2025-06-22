@@ -11,7 +11,7 @@ async def index() -> str:
 
 # 配置 CORS
 cors_config = CORSConfig(
-    allow_origins=["http://localhost:5173"],  # 前端开发服务器地址
+    allow_origins=["http://localhost:5173", "http://47.117.125.48"],
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],
     allow_credentials=True,
