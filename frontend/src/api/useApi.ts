@@ -56,6 +56,8 @@ export const error = ref<string>('')
 
 // API Functions
 export const apiCall = async (endpoint: string, options: RequestInit = {}) => {
+  console.log(API_BASE_URL)
+  console.log(import.meta.env.VITE_BACKEND_URL)
   try {
     console.log('API CALLED' + `${API_BASE_URL}${endpoint}`)
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
