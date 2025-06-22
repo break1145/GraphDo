@@ -34,3 +34,10 @@ def get_pg_pool() -> ConnectionPool:
     if _pool is None:
         raise RuntimeError("连接池未初始化，请在应用启动时调用 init_pg_pool()")
     return _pool
+
+def close_pg_pool() -> None:
+    """关闭连接池"""
+    global _pool
+    if _pool is not None:
+        _pool.close()
+        print("[PG Pool] 已关闭连接池")
