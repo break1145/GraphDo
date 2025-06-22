@@ -11,7 +11,7 @@ export interface Message {
 export interface Todo {
   task: string
   key?: string
-  status: 'not started' | 'in progress' | 'done' | 'archived'
+  status: 'not started' | 'in progress' | 'done' | 'archived' | 'completed'
   deadline: string | null
   solutions: string[]
   planned_edits: string[]
