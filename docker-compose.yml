@@ -30,12 +30,14 @@ services:
       - OPENAI_BASE_URL=${OPENAI_BASE_URL}
       - OPENAI_MODEL=${OPENAI_MODEL}
       - DB_URI=postgresql://postgres:12345678@postgres:5432/graphdo_db
+      - PYTHONPATH=/app
+    volumes:
+      - ./backend:/app/backend
     depends_on:
       postgres:
         condition: service_healthy
-    volumes:
-      - ./backend:/app
     restart: unless-stopped
+
 
   frontend:
     build:
