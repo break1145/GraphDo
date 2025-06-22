@@ -19,7 +19,8 @@ class ToDoDao(BaseDao[ToDo]):
                 value ->> 'deadline' as deadline,
                 value ->> 'solutions' as solutions,
                 value ->> 'planned_edits' as planned_edits,
-                value ->> 'time_to_complete' as time_to_complete
+                value ->> 'time_to_complete' as time_to_complete,
+                key
             FROM store
             WHERE prefix = %s;
         """

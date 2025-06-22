@@ -60,6 +60,7 @@ class ToDo(BaseModel):
         description="Planned changes or improvements to the task, such as adding specific vendors or clarifying vague goals.",
         default_factory=list
     )
+    key: str = Field(description="The uuid of the task.")
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> "ToDo":

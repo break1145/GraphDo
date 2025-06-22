@@ -10,7 +10,8 @@ export interface Message {
 
 export interface Todo {
   task: string
-  status: 'not started' | 'in progress' | 'completed'
+  key?: string
+  status: 'not started' | 'in progress' | 'done' | 'archived'
   deadline: string | null
   solutions: string[]
   planned_edits: string[]
@@ -18,12 +19,11 @@ export interface Todo {
 }
 
 export interface UserProfile {
-  id?: string
   name?: string
   job?: string
   location?: string
-  interests?: []
-  connections?: []
+  interests?: string[]
+  connections?: string[]
   [key: string]: any
 }
 
@@ -33,6 +33,11 @@ export interface UserInstructions {
     language: string
   }>
   [key: string]: any
+}
+
+export interface Instruction {
+  language: string
+  content: string
 }
 
 export interface ChatInput {
@@ -72,6 +77,8 @@ export const apiCall = async (endpoint: string, options: RequestInit = {}) => {
   }
 }
 
+// ==================== Chat API ====================
+
 // 发送消息
 export const sendChatMessage = async (chatInput: ChatInput) => {
   return await apiCall('/agent/chat', {
@@ -80,6 +87,7 @@ export const sendChatMessage = async (chatInput: ChatInput) => {
   })
 }
 
+// ==================== To do CRUD ====================
 
 // 获取to do列表
 export const loadTodos = async () => {
@@ -88,10 +96,9 @@ export const loadTodos = async () => {
   try {
     isLoading.value = true
     error.value = ''
-    const response = await apiCall(`/agent/todos/${currentUserId.value}`)
+    const response = await apiCall(`/api/todos/${currentUserId.value}`)
 
-    // 根据新的API格式处理响应
-    if (response.response && Array.isArray(response.response)) {
+    if (response.success && Array.isArray(response.response)) {
       return response.response
     } else if (Array.isArray(response)) {
       return response
@@ -106,16 +113,82 @@ export const loadTodos = async () => {
   }
 }
 
-// 按id获取profile
+// 创建新的待办事项
+export const createTodo = async (todo: Omit<Todo, 'key'>) => {
+  if (!currentUserId.value) return false
+
+  try {
+    isLoading.value = true
+    error.value = ''
+    const response = await apiCall('/api/todos', {
+      method: 'POST',
+      body: JSON.stringify({
+        user_id: currentUserId.value,
+        ...todo
+      })
+    })
+    return response.success
+  } catch (err) {
+    error.value = `Failed to create todo: ${err instanceof Error ? err.message : 'Unknown error'}`
+    return false
+  } finally {
+    isLoading.value = false
+  }
+}
+
+// 更新待办事项
+export const updateTodo = async (key: string, todo: Omit<Todo, 'key'>) => {
+  if (!currentUserId.value) return false
+
+  try {
+    isLoading.value = true
+    error.value = ''
+    const response = await apiCall(`/api/todos/${currentUserId.value}/${key}`, {
+      method: 'PUT',
+      body: JSON.stringify({
+        user_id: currentUserId.value,
+        ...todo
+      })
+    })
+    return response.success
+  } catch (err) {
+    error.value = `Failed to update todo: ${err instanceof Error ? err.message : 'Unknown error'}`
+    return false
+  } finally {
+    isLoading.value = false
+  }
+}
+
+// 删除待办事项
+export const deleteTodo = async (key: string) => {
+  if (!currentUserId.value) return false
+
+  try {
+    isLoading.value = true
+    error.value = ''
+    const response = await apiCall(`/api/todos/${currentUserId.value}/${key}`, {
+      method: 'DELETE'
+    })
+    return response.success
+  } catch (err) {
+    error.value = `Failed to delete todo: ${err instanceof Error ? err.message : 'Unknown error'}`
+    return false
+  } finally {
+    isLoading.value = false
+  }
+}
+
+// ==================== Profile CRUD ====================
+
+// 获取用户档案
 export const loadProfile = async () => {
   if (!currentUserId.value) return {}
 
   try {
     isLoading.value = true
     error.value = ''
-    const response = await apiCall(`/agent/profile/${currentUserId.value}`)
-    // console.log((response["response"][0]))
-    return response["response"][0] || {}
+    const response = await apiCall(`/api/profile/${currentUserId.value}`)
+    return response.success ? response.response : {}
   } catch (err) {
     error.value = `Failed to load profile: ${err instanceof Error ? err.message : 'Unknown error'}`
     return {}
@@ -124,15 +197,63 @@ export const loadProfile = async () => {
   }
 }
 
-// 按id获取偏好
+// 创建用户档案
+export const createProfile = async (profile: UserProfile) => {
+  if (!currentUserId.value) return false
+
+  try {
+    isLoading.value = true
+    error.value = ''
+    const response = await apiCall('/api/profile', {
+      method: 'POST',
+      body: JSON.stringify({
+        user_id: currentUserId.value,
+        ...profile
+      })
+    })
+    return response.success
+  } catch (err) {
+    error.value = `Failed to create profile: ${err instanceof Error ? err.message : 'Unknown error'}`
+    return false
+  } finally {
+    isLoading.value = false
+  }
+}
+
+// 更新用户档案
+export const updateProfile = async (profile: UserProfile) => {
+  if (!currentUserId.value) return false
+
+  try {
+    isLoading.value = true
+    error.value = ''
+    const response = await apiCall(`/api/profile/${currentUserId.value}`, {
+      method: 'PUT',
+      body: JSON.stringify({
+        user_id: currentUserId.value,
+        ...profile
+      })
+    })
+    return response.success
+  } catch (err) {
+    error.value = `Failed to update profile: ${err instanceof Error ? err.message : 'Unknown error'}`
+    return false
+  } finally {
+    isLoading.value = false
+  }
+}
+
+// ==================== Instructions CRUD ====================
+
+// 获取用户指令
 export const loadInstructions = async () => {
   if (!currentUserId.value) return { response: [] }
 
   try {
     isLoading.value = true
     error.value = ''
-    const response = await apiCall(`/agent/instructions/${currentUserId.value}`)
-    return response["response"] || { response: [] }
+    const response = await apiCall(`/api/instructions/${currentUserId.value}`)
+    return response.success ? { response: response.response } : { response: [] }
   } catch (err) {
     error.value = `Failed to load instructions: ${err instanceof Error ? err.message : 'Unknown error'}`
     return { response: [] }
@@ -141,15 +262,81 @@ export const loadInstructions = async () => {
   }
 }
 
+// 创建新指令
+export const createInstruction = async (instruction: Instruction) => {
+  if (!currentUserId.value) return false
+
+  try {
+    isLoading.value = true
+    error.value = ''
+    const response = await apiCall('/api/instructions', {
+      method: 'POST',
+      body: JSON.stringify({
+        user_id: currentUserId.value,
+        ...instruction
+      })
+    })
+    return response.success
+  } catch (err) {
+    error.value = `Failed to create instruction: ${err instanceof Error ? err.message : 'Unknown error'}`
+    return false
+  } finally {
+    isLoading.value = false
+  }
+}
+
+// 更新指令
+export const updateInstruction = async (key: string, instruction: Instruction) => {
+  if (!currentUserId.value) return false
+
+  try {
+    isLoading.value = true
+    error.value = ''
+    const response = await apiCall(`/api/instructions/${currentUserId.value}/${key}`, {
+      method: 'PUT',
+      body: JSON.stringify(instruction)
+    })
+    return response.success
+  } catch (err) {
+    error.value = `Failed to update instruction: ${err instanceof Error ? err.message : 'Unknown error'}`
+    return false
+  } finally {
+    isLoading.value = false
+  }
+}
+
+// 删除指令
+export const deleteInstruction = async (key: string) => {
+  if (!currentUserId.value) return false
+
+  try {
+    isLoading.value = true
+    error.value = ''
+    const response = await apiCall(`/api/instructions/${currentUserId.value}/${key}`, {
+      method: 'DELETE'
+    })
+    return response.success
+  } catch (err) {
+    error.value = `Failed to delete instruction: ${err instanceof Error ? err.message : 'Unknown error'}`
+    return false
+  } finally {
+    isLoading.value = false
+  }
+}
+
+// ==================== Utility Functions ====================
+
 // 获取不同状态的css
 export const getStatusClass = (status: string): string => {
   switch (status?.toLowerCase()) {
-    case 'completed':
+    case 'done':
       return 'bg-green-100 text-green-800'
     case 'in progress':
       return 'bg-blue-100 text-blue-800'
     case 'not started':
       return 'bg-gray-100 text-gray-800'
+    case 'archived':
+      return 'bg-yellow-100 text-yellow-800'
     default:
       return 'bg-gray-100 text-gray-800'
   }
