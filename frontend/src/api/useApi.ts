@@ -21,24 +21,25 @@ export interface Todo {
 export interface UserProfile {
   name?: string
   job?: string
+  key?: string
   location?: string
   interests?: string[]
   connections?: string[]
-  [key: string]: any
 }
 
-export interface UserInstructions {
-  response?: Array<{
-    content: string
-    language: string
-  }>
-  [key: string]: any
-}
-
+// 单个指令的基础类型
 export interface Instruction {
   language: string
   content: string
+  key: string
 }
+
+// API响应包装器，重用Instruction类型
+export interface UserInstructions {
+  response?: Instruction[]  // 直接使用Instruction[]而不是内联类型
+  key?: string
+}
+
 
 export interface ChatInput {
   user_id: string
@@ -293,6 +294,7 @@ export const updateInstruction = async (key: string, instruction: Instruction) =
   try {
     isLoading.value = true
     error.value = ''
+    console.log("update inst: key = " + key + " inst = " + instruction)
     const response = await apiCall(`/api/instructions/${currentUserId.value}/${key}`, {
       method: 'PUT',
       body: JSON.stringify(instruction)

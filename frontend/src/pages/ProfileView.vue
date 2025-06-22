@@ -1,14 +1,14 @@
 <template>
   <AppLayout>
-    <div class="max-w-4xl mx-auto">
-      <div class="bg-white rounded-2xl shadow-xl border border-blue-100 overflow-hidden">
+    <div class="h-full flex flex-col">
+      <div class="flex-1 bg-white rounded-2xl shadow-xl border border-blue-100 overflow-hidden mx-4 my-4 flex flex-col">
         <!-- Profile Header -->
         <div class="bg-gradient-to-r from-blue-500 to-indigo-600 px-8 py-12 text-center">
           <div class="w-24 h-24 bg-white rounded-full flex items-center justify-center mx-auto mb-4">
             <User class="w-5 h-5 mr-2 text-blue-500" />
           </div>
           <h2 class="text-2xl font-bold text-white">{{ userProfile.name || 'User Profile' }}</h2>
-          <p class="text-blue-100 mt-1">{{ userProfile.email || currentUserId }}</p>
+          <p class="text-blue-100 mt-1">{{ currentUserId }}</p>
         </div>
 
         <!-- Profile Content -->
@@ -54,19 +54,14 @@
                 <FileText class="w-5 h-5 mr-2 text-blue-500" />
                 Agent Instructions
               </h3>
-              <div v-if="userInstructions && userInstructions.length > 0" class="space-y-4">
-                <div 
-                  v-for="(instruction, index) in userInstructions"
-                  :key="index"
-                  class="bg-blue-50 rounded-lg p-6 border border-blue-200"
-                >
-                  <div class="flex items-center justify-between mb-2">
-                    <span class="text-sm font-medium text-blue-600">{{ instruction.language }}</span>
-                  </div>
-                  <div class="text-gray-700 leading-relaxed whitespace-pre-wrap">
-                    {{ instruction.content }}
-                  </div>
-                </div>
+              <div v-if="userInstructions.response && userInstructions.response.length > 0" class="space-y-4">
+                <InstructionItem
+                  v-for="(instruction, index) in userInstructions.response"
+                  :key="instruction.key || `instruction_${index}`"
+                  :instruction="instruction"
+                  :instruction-key="instruction.key"
+                  @update="handleInstructionUpdate(index, $event)"
+                />
               </div>
               <div v-else class="bg-blue-50 rounded-lg p-6 border border-blue-200">
                 <p class="text-gray-700 leading-relaxed">
@@ -93,13 +88,15 @@
 import { ref, onMounted } from 'vue'
 import { User, FileText, RefreshCw } from 'lucide-vue-next'
 import AppLayout from '@/components/AppLayout.vue'
-import { 
+import InstructionItem from '@/components/InstructionItem.vue'
+import {
   currentUserId,
   loadProfile,
   loadInstructions,
   formatDate,
   type UserProfile,
-  type UserInstructions 
+  type UserInstructions,
+  type Instruction
 } from '@/api/useApi'
 
 const userProfile = ref<UserProfile>({})
@@ -107,16 +104,24 @@ const userInstructions = ref<UserInstructions>({})
 
 const refreshProfile = async () => {
   userProfile.value = await loadProfile()
-  // console.log(userProfile.value)
 }
 
 const refreshInstructions = async () => {
-  userInstructions.value = (await loadInstructions()).response
-  // console.log(userInstructions.value)
+  userInstructions.value = await loadInstructions()
 }
 
 onMounted(() => {
   refreshProfile()
   refreshInstructions()
 })
+
+const handleInstructionUpdate = (index: number, updatedInstruction: Instruction) => {
+  if (userInstructions.value.response && userInstructions.value.response[index]) {
+    userInstructions.value.response[index] = updatedInstruction
+  }
+}
+
+const getInstructionKey = (instruction: Instruction, index: number) => {
+  return instruction.key || `instruction_${index}`
+}
 </script>

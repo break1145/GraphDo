@@ -11,7 +11,7 @@
             <h1 class="text-xl font-bold text-gray-900">Graph Do</h1>
           </div>
           
-          <!-- User ID Input - 移动到header中并美化 -->
+          <!-- User ID Input -->
           <div class="flex items-center space-x-3">
             <div class="flex items-center space-x-2 bg-white/60 backdrop-blur-sm rounded-lg px-3 py-2 border border-blue-200">
               <User class="w-4 h-4 text-gray-500" />
