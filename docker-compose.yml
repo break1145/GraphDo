@@ -51,7 +51,6 @@ services:
     environment:
       - http_proxy=http://172.17.0.1:7890
       - https_proxy=http://172.17.0.1:7890
-      - VITE_BACKEND_URL=http://47.117.125.48:8000
 
     ports:
       - "80:80"
