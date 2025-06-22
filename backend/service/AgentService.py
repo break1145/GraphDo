@@ -37,29 +37,29 @@ class AgentService:
         """
         return self.agent.chat(user_id=user_id, input=input_text, stream=True)
     
-    async def get_user_todos(self, user_id: str) -> dict:
-        """
-        获取用户的待办事项
-        :param user_id: 用户ID
-        :return: 包含待办事项列表的字典
-        """
-        todos = self.agent.get_todos(user_id=user_id)
-        return {"response": todos}
-    
-    async def get_user_profile(self, user_id: str) -> dict:
-        """
-        获取用户档案信息
-        :param user_id: 用户ID
-        :return: 包含用户档案的字典
-        """
-        profile = self.agent.get_profile(user_id=user_id)
-        return {"response": profile}
-    
-    async def get_user_instructions(self, user_id: str) -> dict:
-        """
-        获取用户偏好说明
-        :param user_id: 用户ID
-        :return: 包含用户偏好说明的字典
-        """
-        instructions = self.agent.get_instructions(user_id=user_id)
-        return {"response": instructions}
+    # async def get_user_todos(self, user_id: str) -> dict:
+    #     """
+    #     获取用户的待办事项
+    #     :param user_id: 用户ID
+    #     :return: 包含待办事项列表的字典
+    #     """
+    #     todos = self.agent.get_todos(user_id=user_id)
+    #     return {"response": todos}
+    #
+    # async def get_user_profile(self, user_id: str) -> dict:
+    #     """
+    #     获取用户档案信息
+    #     :param user_id: 用户ID
+    #     :return: 包含用户档案的字典
+    #     """
+    #     profile = self.agent.get_profile(user_id=user_id)
+    #     return {"response": profile}
+    #
+    # async def get_user_instructions(self, user_id: str) -> dict:
+    #     """
+    #     获取用户偏好说明
+    #     :param user_id: 用户ID
+    #     :return: 包含用户偏好说明的字典
+    #     """
+    #     instructions = self.agent.get_instructions(user_id=user_id)
+    #     return {"response": instructions}

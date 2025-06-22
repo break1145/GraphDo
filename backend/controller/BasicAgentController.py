@@ -65,65 +65,65 @@ class AgentChatController(Controller):
 
         return ServerSentEvent(event_generator())
 
-    @get("/todos/{user_id:str}")
-    async def get_todos(self, user_id: str, agent_service: AgentService) -> dict:
-        """
-        返回用户id的所有 to do事项
-        :param agent_service:
-        :param user_id: 用户ID
-        :return: 包含待办事项的字典
-        """
-        # 参数校验
-        if not user_id or not user_id.strip():
-            return {"error": "user_id不能为空"}
-        
-        try:
-            # 调用服务层处理业务逻辑
-            result = await agent_service.get_user_todos(user_id=user_id)
-            return result
-            
-        except Exception as e:
-            traceback.print_exc()
-            return {"error": str(e)}
-
-    @get("/profile/{user_id:str}")
-    async def get_profile(self, user_id: str, agent_service: AgentService) -> dict:
-        """
-        获取用户档案信息
-        :param agent_service:
-        :param user_id: 用户ID
-        :return: 包含用户档案的字典
-        """
-        # 参数校验
-        if not user_id or not user_id.strip():
-            return {"error": "user_id不能为空"}
-        
-        try:
-            # 调用服务层处理业务逻辑
-            result = await agent_service.get_user_profile(user_id=user_id)
-            return result
-            
-        except Exception as e:
-            traceback.print_exc()
-            return {"error": str(e)}
-
-    @get("/instructions/{user_id:str}")
-    async def get_instructions(self, user_id: str, agent_service: AgentService) -> dict:
-        """
-        获取用户偏好说明
-        :param agent_service:
-        :param user_id: 用户ID
-        :return: 包含用户偏好说明的字典
-        """
-        # 参数校验
-        if not user_id or not user_id.strip():
-            return {"error": "user_id不能为空"}
-        
-        try:
-            # 调用服务层处理业务逻辑
-            result = await agent_service.get_user_instructions(user_id=user_id)
-            return result
-            
-        except Exception as e:
-            traceback.print_exc()
-            return {"error": str(e)}
+    # @get("/todos/{user_id:str}")
+    # async def get_todos(self, user_id: str, agent_service: AgentService) -> dict:
+    #     """
+    #     返回用户id的所有 to do事项
+    #     :param agent_service:
+    #     :param user_id: 用户ID
+    #     :return: 包含待办事项的字典
+    #     """
+    #     # 参数校验
+    #     if not user_id or not user_id.strip():
+    #         return {"error": "user_id不能为空"}
+    #
+    #     try:
+    #         # 调用服务层处理业务逻辑
+    #         result = await agent_service.get_user_todos(user_id=user_id)
+    #         return result
+    #
+    #     except Exception as e:
+    #         traceback.print_exc()
+    #         return {"error": str(e)}
+    #
+    # @get("/profile/{user_id:str}")
+    # async def get_profile(self, user_id: str, agent_service: AgentService) -> dict:
+    #     """
+    #     获取用户档案信息
+    #     :param agent_service:
+    #     :param user_id: 用户ID
+    #     :return: 包含用户档案的字典
+    #     """
+    #     # 参数校验
+    #     if not user_id or not user_id.strip():
+    #         return {"error": "user_id不能为空"}
+    #
+    #     try:
+    #         # 调用服务层处理业务逻辑
+    #         result = await agent_service.get_user_profile(user_id=user_id)
+    #         return result
+    #
+    #     except Exception as e:
+    #         traceback.print_exc()
+    #         return {"error": str(e)}
+    #
+    # @get("/instructions/{user_id:str}")
+    # async def get_instructions(self, user_id: str, agent_service: AgentService) -> dict:
+    #     """
+    #     获取用户偏好说明
+    #     :param agent_service:
+    #     :param user_id: 用户ID
+    #     :return: 包含用户偏好说明的字典
+    #     """
+    #     # 参数校验
+    #     if not user_id or not user_id.strip():
+    #         return {"error": "user_id不能为空"}
+    #
+    #     try:
+    #         # 调用服务层处理业务逻辑
+    #         result = await agent_service.get_user_instructions(user_id=user_id)
+    #         return result
+    #
+    #     except Exception as e:
+    #         traceback.print_exc()
+    #         return {"error": str(e)}
