@@ -43,8 +43,8 @@
         <div class="bg-white rounded-xl p-6 shadow-lg border border-orange-100">
           <div class="flex items-center justify-between">
             <div>
-              <p class="text-sm font-medium text-gray-600">Pending</p>
-              <p class="text-2xl font-bold text-gray-900">{{ pendingTodos }}</p>
+              <p class="text-sm font-medium text-gray-600">In Progress</p>
+              <p class="text-2xl font-bold text-gray-900">{{ inProgressTodos }}</p>
             </div>
             <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
               <Clock class="w-6 h-6 text-orange-600" />
@@ -54,56 +54,83 @@
       </div>
 
       <!-- Todo List -->
-      <div class="space-y-4">
+      <div class="space-y-6">
         <div
-          v-for="todo in todos"
-          :key="todo.id"
+          v-for="(todo, index) in todos"
+          :key="index"
           class="bg-white rounded-xl p-6 shadow-lg border border-blue-100 hover:shadow-xl transition-shadow duration-200"
         >
-          <div class="flex items-start justify-between">
-            <div class="flex items-start space-x-4">
+          <div class="flex items-start justify-between mb-4">
+            <div class="flex items-start space-x-4 flex-1">
               <button
-                @click="toggleTodo(todo.id)"
+                @click="toggleTodo(index)"
                 :class="[
-                  'w-5 h-5 rounded-full border-2 flex items-center justify-center mt-1',
-                  todo.completed
+                  'w-5 h-5 rounded-full border-2 flex items-center justify-center mt-1 flex-shrink-0',
+                  todo.status === 'completed'
                     ? 'bg-green-500 border-green-500'
                     : 'border-gray-300 hover:border-blue-500'
                 ]"
               >
-                <Check v-if="todo.completed" class="w-3 h-3 text-white" />
+                <Check v-if="todo.status === 'completed'" class="w-3 h-3 text-white" />
               </button>
               <div class="flex-1">
                 <h3
                   :class="[
-                    'font-semibold text-lg',
-                    todo.completed ? 'text-gray-500 line-through' : 'text-gray-900'
+                    'font-semibold text-lg mb-2',
+                    todo.status === 'completed' ? 'text-gray-500 line-through' : 'text-gray-900'
                   ]"
                 >
-                  {{ todo.title }}
+                  {{ todo.task }}
                 </h3>
-                <p
-                  :class="[
-                    'text-sm mt-1',
-                    todo.completed ? 'text-gray-400' : 'text-gray-600'
-                  ]"
-                >
-                  {{ todo.description }}
-                </p>
-                <div class="flex items-center space-x-4 mt-3">
+                
+                <!-- Status and Time Info -->
+                <div class="flex items-center space-x-4 mb-3">
                   <span
-                    v-if="todo.priority"
                     :class="[
                       'px-3 py-1 rounded-full text-xs font-medium',
-                      getPriorityClass(todo.priority)
+                      getStatusClass(todo.status)
                     ]"
                   >
-                    {{ todo.priority }}
+                    {{ todo.status }}
                   </span>
-                  <span v-if="todo.due_date" class="text-xs text-gray-500 flex items-center">
+                  <span v-if="todo.deadline" class="text-xs text-gray-500 flex items-center">
                     <Calendar class="w-3 h-3 mr-1" />
-                    {{ formatDate(todo.due_date) }}
+                    {{ formatDate(todo.deadline) }}
                   </span>
+                  <span v-if="todo.time_to_complete" class="text-xs text-blue-600 flex items-center">
+                    <Clock class="w-3 h-3 mr-1" />
+                    {{ formatTimeToComplete(todo.time_to_complete) }}
+                  </span>
+                </div>
+
+                <!-- Solutions -->
+                <div v-if="todo.solutions.length > 0" class="mb-3">
+                  <h4 class="text-sm font-medium text-gray-700 mb-2">Solutions:</h4>
+                  <ul class="space-y-1">
+                    <li 
+                      v-for="(solution, sIndex) in todo.solutions" 
+                      :key="sIndex"
+                      class="text-sm text-gray-600 flex items-start"
+                    >
+                      <span class="w-1.5 h-1.5 bg-blue-400 rounded-full mt-2 mr-2 flex-shrink-0"></span>
+                      {{ solution }}
+                    </li>
+                  </ul>
+                </div>
+
+                <!-- Planned Edits -->
+                <div v-if="todo.planned_edits.length > 0">
+                  <h4 class="text-sm font-medium text-gray-700 mb-2">Planned Edits:</h4>
+                  <ul class="space-y-1">
+                    <li 
+                      v-for="(edit, eIndex) in todo.planned_edits" 
+                      :key="eIndex"
+                      class="text-sm text-gray-600 flex items-start"
+                    >
+                      <span class="w-1.5 h-1.5 bg-orange-400 rounded-full mt-2 mr-2 flex-shrink-0"></span>
+                      {{ edit }}
+                    </li>
+                  </ul>
                 </div>
               </div>
             </div>
@@ -130,24 +157,31 @@ import {
   currentUserId, 
   isLoading,
   loadTodos,
-  getPriorityClass,
+  getStatusClass,
   formatDate,
+  formatTimeToComplete,
   type Todo 
-} from '@/composables/useApi'
+} from '@/api/useApi'
 
 const todos = ref<Todo[]>([])
 
-const completedTodos = computed(() => todos.value.filter(todo => todo.completed).length)
-const pendingTodos = computed(() => todos.value.filter(todo => !todo.completed).length)
+const completedTodos = computed(() => todos.value.filter(todo => todo.status === 'completed').length)
+const inProgressTodos = computed(() => todos.value.filter(todo => todo.status === 'in progress').length)
 
 const refreshTodos = async () => {
   todos.value = await loadTodos()
 }
 
-const toggleTodo = async (id: string | number) => {
-  const todo = todos.value.find(t => t.id === id)
+const toggleTodo = async (index: number) => {
+  const todo = todos.value[index]
   if (todo) {
-    todo.completed = !todo.completed
+    if (todo.status === 'completed') {
+      todo.status = 'not started'
+    } else if (todo.status === 'not started') {
+      todo.status = 'in progress'
+    } else if (todo.status === 'in progress') {
+      todo.status = 'completed'
+    }
   }
 }
 

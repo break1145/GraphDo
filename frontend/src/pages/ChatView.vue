@@ -79,7 +79,7 @@ import {
   formatTime,
   type Message, 
   type ChatInput 
-} from '@/composables/useApi'
+} from '@/api/useApi'
 
 const newMessage = ref('')
 const isTyping = ref(false)

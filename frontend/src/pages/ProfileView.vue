@@ -5,7 +5,7 @@
         <!-- Profile Header -->
         <div class="bg-gradient-to-r from-blue-500 to-indigo-600 px-8 py-12 text-center">
           <div class="w-24 h-24 bg-white rounded-full flex items-center justify-center mx-auto mb-4">
-            <User class="w-12 h-12 text-blue-500" />
+            <User class="w-5 h-5 mr-2 text-blue-500" />
           </div>
           <h2 class="text-2xl font-bold text-white">{{ userProfile.name || 'User Profile' }}</h2>
           <p class="text-blue-100 mt-1">{{ userProfile.email || currentUserId }}</p>
@@ -29,13 +29,21 @@
                   <label class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
                   <div class="px-4 py-3 bg-gray-50 rounded-lg text-gray-900">{{ userProfile.name }}</div>
                 </div>
-                <div v-if="userProfile.email">
-                  <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                  <div class="px-4 py-3 bg-gray-50 rounded-lg text-gray-900">{{ userProfile.email }}</div>
+                <div v-if="userProfile.job">
+                  <label class="block text-sm font-medium text-gray-700 mb-1">Job</label>
+                  <div class="px-4 py-3 bg-gray-50 rounded-lg text-gray-900">{{ userProfile.job }}</div>
                 </div>
-                <div v-if="userProfile.created_at">
-                  <label class="block text-sm font-medium text-gray-700 mb-1">Member Since</label>
-                  <div class="px-4 py-3 bg-gray-50 rounded-lg text-gray-900">{{ formatDate(userProfile.created_at) }}</div>
+                <div v-if="userProfile.location">
+                  <label class="block text-sm font-medium text-gray-700 mb-1">Location</label>
+                  <div class="px-4 py-3 bg-gray-50 rounded-lg text-gray-900">{{ userProfile.location }}</div>
+                </div>
+                <div v-if="userProfile.interests">
+                  <label class="block text-sm font-medium text-gray-700 mb-1">interests</label>
+                  <div class="px-4 py-3 bg-gray-50 rounded-lg text-gray-900">{{ userProfile.interests }}</div>
+                </div>
+                <div v-if="userProfile.connections">
+                  <label class="block text-sm font-medium text-gray-700 mb-1">connections</label>
+                  <div class="px-4 py-3 bg-gray-50 rounded-lg text-gray-900">{{ userProfile.connections }}</div>
                 </div>
               </div>
             </div>
@@ -46,9 +54,23 @@
                 <FileText class="w-5 h-5 mr-2 text-blue-500" />
                 Agent Instructions
               </h3>
-              <div class="bg-blue-50 rounded-lg p-6 border border-blue-200">
+              <div v-if="userInstructions && userInstructions.length > 0" class="space-y-4">
+                <div 
+                  v-for="(instruction, index) in userInstructions"
+                  :key="index"
+                  class="bg-blue-50 rounded-lg p-6 border border-blue-200"
+                >
+                  <div class="flex items-center justify-between mb-2">
+                    <span class="text-sm font-medium text-blue-600">{{ instruction.language }}</span>
+                  </div>
+                  <div class="text-gray-700 leading-relaxed whitespace-pre-wrap">
+                    {{ instruction.content }}
+                  </div>
+                </div>
+              </div>
+              <div v-else class="bg-blue-50 rounded-lg p-6 border border-blue-200">
                 <p class="text-gray-700 leading-relaxed">
-                  {{ userInstructions.instructions || 'No instructions set yet. Chat with the agent to set up your preferences!' }}
+                  No instructions set yet. Chat with the agent to set up your preferences!
                 </p>
               </div>
               <button
@@ -78,13 +100,14 @@ import {
   formatDate,
   type UserProfile,
   type UserInstructions 
-} from '@/composables/useApi'
+} from '@/api/useApi'
 
 const userProfile = ref<UserProfile>({})
 const userInstructions = ref<UserInstructions>({})
 
 const refreshProfile = async () => {
   userProfile.value = await loadProfile()
+  // console.log(userProfile.value)
 }
 
 const refreshInstructions = async () => {

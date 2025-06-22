@@ -75,7 +75,7 @@
 
 <script setup lang="ts">
 import { CheckSquare, MessageCircle, User, AlertCircle } from 'lucide-vue-next'
-import { currentUserId, isLoading, error, loadTodos, loadProfile, loadInstructions } from '@/composables/useApi'
+import { currentUserId, isLoading, error, loadTodos, loadProfile, loadInstructions } from '@/api/useApi'
 
 const tabs = [
   { path: '/chat', name: 'Chat', icon: MessageCircle },
