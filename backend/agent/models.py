@@ -49,7 +49,6 @@ class ToDo(BaseModel):
     )
     solutions: list[str] = Field(
         description="List of specific, actionable solutions (e.g., specific ideas, service providers, or concrete options relevant to completing the task)",
-        min_items=1,
         default_factory=list
     )
     status: Literal["not started", "in progress", "done", "archived"] = Field(
