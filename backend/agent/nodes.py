@@ -103,7 +103,11 @@ def update_profile(state: CustomState, config: RunnableConfig, store: BaseStore)
         store.put(namespace, rmeta.get("json_doc_id", str(uuid.uuid4())), r.model_dump(mode="json"))
 
     tool_calls = state['messages'][-1].tool_calls
-    return {"messages": [{"role": "tool", "content": "", "tool_call_id": tool_calls[0]['id']}]}
+    return {
+        "messages": [
+            ToolMessage(tool_call_id=call['id'], content="done") for call in tool_calls
+        ]
+    }
 
 def update_todos(state: CustomState, config: RunnableConfig, store: BaseStore):
     user_id = config["configurable"]["user_id"]
@@ -140,7 +144,11 @@ def update_todos(state: CustomState, config: RunnableConfig, store: BaseStore):
     # 可选：打印工具结果供开发调试
     print("[工具调用] ToDo 更新：", extract_tool_info(spy.called_tools, tool_name))
 
-    return {"messages": [{"role": "tool", "content": "", "tool_call_id": tool_calls[0]['id']}]}
+    return {
+        "messages": [
+            ToolMessage(tool_call_id=call['id'], content="done") for call in tool_calls
+        ]
+    }
 
 
 def update_instructions(state: CustomState, config: RunnableConfig, store: BaseStore):
@@ -165,7 +173,11 @@ def update_instructions(state: CustomState, config: RunnableConfig, store: BaseS
     ).model_dump())
 
     tool_calls = state['messages'][-1].tool_calls
-    return {"messages": [{"role": "tool", "content": "", "tool_call_id": tool_calls[0]['id']}]}
+    return {
+        "messages": [
+            ToolMessage(tool_call_id=call['id'], content="done") for call in tool_calls
+        ]
+    }
 
 def route_message(state: CustomState, config: RunnableConfig, store: BaseStore) -> tuple[str, CustomState]:
     messages = state['messages']
@@ -175,26 +187,33 @@ def route_message(state: CustomState, config: RunnableConfig, store: BaseStore) 
     if not hasattr(last_msg, "tool_calls") or not last_msg.tool_calls:
         return END, state
 
-    # 构造 tool 响应
-    tool_call = last_msg.tool_calls[0]
-    update_type = tool_call["args"].get("update_type")
+    new_messages = messages[:]
+    update_types = []
 
-    tool_response = ToolMessage(
-        tool_call_id=tool_call["id"],
-        content="acknowledged"
-    )
+    for tool_call in last_msg.tool_calls:
+        update_type = tool_call["args"].get("update_type")
+        update_types.append(update_type)
+
+        # 加入 tool 响应
+        tool_response = ToolMessage(
+            tool_call_id=tool_call["id"],
+            content="acknowledged"
+        )
+        new_messages.append(tool_response)
 
     new_state: CustomState = {
         **state,
-        "messages": messages + [tool_response]
+        "messages": new_messages
     }
 
-    if update_type == "user":
+    # 逐个分支跳转执行工具更新
+    # 用 langgraph 的“多分支支持”处理（你应该在 flow 中对每个 update_type 建立分支）
+    if "user" in update_types:
         return "update_profile", new_state
-    elif update_type == "todo":
+    elif "todo" in update_types:
         return "update_todos", new_state
-    elif update_type == "instructions":
+    elif "instructions" in update_types:
         return "update_instructions", new_state
     else:
-        raise ValueError(f"[route_message] 无效的 update_type: {update_type}")
+        raise ValueError(f"[route_message] 无效的 update_type: {update_types}")
 
