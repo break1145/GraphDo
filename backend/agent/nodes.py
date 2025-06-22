@@ -173,7 +173,7 @@ def update_instructions(state: CustomState, config: RunnableConfig, store: BaseS
     )
 
     new_key = str(uuid.uuid4())
-    store.put(namespace, new_key, Instruction(language="zh-CN", content=new_memory.content).model_dump())
+    store.put(namespace, new_key, Instruction(language="zh-CN", content=new_memory.content, key=new_key).model_dump())
 
     tool_calls = state['messages'][-1].tool_calls
     return {"messages": [{"role": "tool", "content": "appended instructions", "tool_call_id": tool_calls[0]['id']}]}
