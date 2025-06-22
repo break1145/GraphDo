@@ -1,6 +1,7 @@
 from litestar import Litestar, get
 from litestar.config.cors import CORSConfig
 from backend.controller.BasicAgentController import AgentChatController
+from backend.controller.CommonController import CommonController
 from backend.utils.pg_pool import on_startup_pg_pool
 
 
@@ -20,7 +21,8 @@ app = Litestar(
     route_handlers=[
         index,
         AgentChatController,
+        CommonController
     ],
     on_app_init=[on_startup_pg_pool],
-    cors_config=cors_config,  # 添加 CORS 配置
+    cors_config=cors_config,
 )
