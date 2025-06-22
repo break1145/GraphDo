@@ -180,15 +180,15 @@ def update_instructions(state: CustomState, config: RunnableConfig, store: BaseS
     return {"messages": [{"role": "tool", "content": "appended instructions", "tool_call_id": tool_calls[0]['id']}]}
 
 
-def route_message(state: CustomState, config: RunnableConfig, store: BaseStore) -> Literal[END, "update_todos", "update_instructions", "update_profile"]:
-    """在 assistant 发出 tool_calls 后，自动补齐 tool 响应，并路由执行具体工具函数。"""
+def route_message(state: CustomState, config: RunnableConfig, store: BaseStore) -> tuple[str, CustomState]:
     messages = state['messages']
     last_msg = messages[-1]
 
+    # 没有 tool call，就结束
     if not hasattr(last_msg, "tool_calls") or not last_msg.tool_calls:
-        return END
+        return END, state
 
-    # 确保下轮调用时 tool_call 被正确回应
+    # 构造 tool 响应
     tool_call = last_msg.tool_calls[0]
     update_type = tool_call["args"].get("update_type")
 
@@ -197,14 +197,17 @@ def route_message(state: CustomState, config: RunnableConfig, store: BaseStore) 
         content="acknowledged"
     )
 
-    state["messages"].append(tool_response)
+    new_state: CustomState = {
+        **state,
+        "messages": messages + [tool_response]
+    }
 
     if update_type == "user":
-        return "update_profile"
+        return "update_profile", new_state
     elif update_type == "todo":
-        return "update_todos"
+        return "update_todos", new_state
     elif update_type == "instructions":
-        return "update_instructions"
+        return "update_instructions", new_state
     else:
         raise ValueError(f"[route_message] 无效的 update_type: {update_type}")
 
