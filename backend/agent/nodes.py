@@ -12,6 +12,7 @@ from .constants import MODEL_SYSTEM_MESSAGE, TRUSTCALL_INSTRUCTION, CREATE_INSTR
 from langchain_openai import ChatOpenAI
 import os
 from dotenv import load_dotenv
+from langchain_core.messages import ToolMessage
 
 
 load_dotenv()
@@ -179,19 +180,31 @@ def update_instructions(state: CustomState, config: RunnableConfig, store: BaseS
     return {"messages": [{"role": "tool", "content": "appended instructions", "tool_call_id": tool_calls[0]['id']}]}
 
 
-
 def route_message(state: CustomState, config: RunnableConfig, store: BaseStore) -> Literal[END, "update_todos", "update_instructions", "update_profile"]:
-    """Reflect on the memories and chat history to decide whether to update the memory collection."""
-    message = state['messages'][-1]
-    if len(message.tool_calls) ==0:
+    """在 assistant 发出 tool_calls 后，自动补齐 tool 响应，并路由执行具体工具函数。"""
+    messages = state['messages']
+    last_msg = messages[-1]
+
+    if not hasattr(last_msg, "tool_calls") or not last_msg.tool_calls:
         return END
+
+    # 确保下轮调用时 tool_call 被正确回应
+    tool_call = last_msg.tool_calls[0]
+    update_type = tool_call["args"].get("update_type")
+
+    tool_response = ToolMessage(
+        tool_call_id=tool_call["id"],
+        content="acknowledged"
+    )
+
+    state["messages"].append(tool_response)
+
+    if update_type == "user":
+        return "update_profile"
+    elif update_type == "todo":
+        return "update_todos"
+    elif update_type == "instructions":
+        return "update_instructions"
     else:
-        tool_call = message.tool_calls[0]
-        if tool_call['args']['update_type'] == "user":
-            return "update_profile"
-        elif tool_call['args']['update_type'] == "todo":
-            return "update_todos"
-        elif tool_call['args']['update_type'] == "instructions":
-            return "update_instructions"
-        else:
-            raise ValueError
+        raise ValueError(f"[route_message] 无效的 update_type: {update_type}")
+
