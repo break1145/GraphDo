@@ -253,6 +253,7 @@ export const loadInstructions = async () => {
     isLoading.value = true
     error.value = ''
     const response = await apiCall(`/api/instructions/${currentUserId.value}`)
+    console.log(response)
     return response.success ? { response: response.response } : { response: [] }
   } catch (err) {
     error.value = `Failed to load instructions: ${err instanceof Error ? err.message : 'Unknown error'}`

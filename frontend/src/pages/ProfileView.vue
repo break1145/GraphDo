@@ -111,7 +111,8 @@ const refreshProfile = async () => {
 }
 
 const refreshInstructions = async () => {
-  userInstructions.value = await loadInstructions()
+  userInstructions.value = (await loadInstructions()).response
+  // console.log(userInstructions.value)
 }
 
 onMounted(() => {
