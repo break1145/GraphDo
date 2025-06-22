@@ -1,18 +1,18 @@
 <template>
   <AppLayout>
-    <div class="max-w-4xl mx-auto">
-      <div class="bg-white rounded-2xl shadow-xl border border-blue-100 overflow-hidden">
+    <div class="h-[90vh] flex flex-col">
+      <div class="flex-1 bg-white rounded-2xl shadow-xl border border-blue-100 overflow-hidden mx-4 my-4 flex flex-col">
         <!-- Chat Header -->
-        <div class="bg-gradient-to-r from-blue-500 to-indigo-600 px-6 py-4">
+        <div class="bg-gradient-to-r from-blue-500 to-indigo-600 px-6 py-4 flex-shrink-0">
           <h2 class="text-xl font-semibold text-white flex items-center">
             <MessageCircle class="w-5 h-5 mr-2" />
             Chat with Todo Agent
           </h2>
-          <p class="text-blue-100 text-sm mt-1">Ask me to manage your todos, set reminders, or get help!</p>
+          <p class="text-blue-100 text-sm mt-1">向Agent对话，帮助你管理待办事项！</p>
         </div>
 
-        <!-- Messages -->
-        <div class="h-96 overflow-y-auto p-6 space-y-4" ref="messagesContainer">
+        <!-- Messages  -->
+        <div class="flex-1 overflow-y-auto p-6 space-y-4" ref="messagesContainer">
           <div
             v-for="message in messages"
             :key="message.id"
@@ -44,8 +44,8 @@
           </div>
         </div>
 
-        <!-- Chat Input -->
-        <div class="border-t border-gray-200 p-4">
+        <!-- Chat Input - 固定在底部 -->
+        <div class="border-t border-gray-200 p-4 flex-shrink-0">
           <form @submit.prevent="sendMessage" class="flex space-x-3">
             <input
               v-model="newMessage"
@@ -88,7 +88,7 @@ const messagesContainer = ref<HTMLElement>()
 const messages = ref<Message[]>([
   {
     id: 1,
-    text: "Hello! I'm your Todo Agent. How can I help you manage your tasks today?",
+    text: "你好，我是GraphDo。你可以告诉我有什么待办事项，让我来帮你管理！",
     sender: 'agent',
     timestamp: new Date()
   }
