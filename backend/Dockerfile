@@ -22,4 +22,4 @@ COPY . .
 
 EXPOSE 8000
 
-CMD ["python", "-m", "litestar", "run", "--host", "0.0.0.0", "--port", "8000", "--app", "backend.app:app"]
+CMD ["python", "-m", "litestar", "run", "--host", "0.0.0.0", "--port", "8000"]
