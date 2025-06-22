@@ -1,7 +1,6 @@
 version: '3.8'
 
 services:
-  # PostgreSQL数据库
   postgres:
     image: postgres:15
     environment:
@@ -17,12 +16,16 @@ services:
       timeout: 5s
       retries: 5
 
-  # 后端服务
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
+      args:
+        http_proxy: http://172.17.0.1:7890
+        https_proxy: http://172.17.0.1:7890
     environment:
+      - http_proxy=http://172.17.0.1:7890
+      - https_proxy=http://172.17.0.1:7890
       - OPENAI_API_KEY=${OPENAI_API_KEY}
       - OPENAI_BASE_URL=${OPENAI_BASE_URL}
       - OPENAI_MODEL=${OPENAI_MODEL}
@@ -34,11 +37,16 @@ services:
       - ./backend:/app
     restart: unless-stopped
 
-  # 前端服务
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      args:
+        http_proxy: http://172.17.0.1:7890
+        https_proxy: http://172.17.0.1:7890
+    environment:
+      - http_proxy=http://172.17.0.1:7890
+      - https_proxy=http://172.17.0.1:7890
     ports:
       - "80:80"
     depends_on:
