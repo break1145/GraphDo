@@ -10,4 +10,4 @@ psycopg-pool==3.2.6
 pydantic==2.11.7
 pydantic-settings==2.9.1
 trustcall==0.0.39
-litestar==2.16.0
+litestar[standard]==2.16.0
