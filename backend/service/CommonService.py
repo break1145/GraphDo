@@ -1,3 +1,4 @@
+import uuid
 from typing import List, Optional
 from backend.dao.InstructionDao import InstructionDao
 from backend.dao.ProfileDao import ProfileDao
@@ -36,7 +37,8 @@ class CommonService:
         try:
             instruction = Instruction(
                 language=language,
-                content=content
+                content=content,
+                key=str(uuid.uuid4())
             )
             success = await self.instruction_dao.create_instruction(user_id, instruction)
             
@@ -55,7 +57,8 @@ class CommonService:
         try:
             instruction = Instruction(
                 language=language,
-                content=content
+                content=content,
+                key=key
             )
             success = await self.instruction_dao.update_by_key(user_id, key, instruction)
             

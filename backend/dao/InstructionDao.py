@@ -15,7 +15,8 @@ class InstructionDao(BaseDao[Instruction]):
         sql = """
             SELECT
                 value ->> 'content' as content,
-                value ->> 'language' as language
+                value ->> 'language' as language,
+                key
             FROM store
             WHERE prefix = %s;
         """

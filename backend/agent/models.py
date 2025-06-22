@@ -88,10 +88,11 @@ class Instruction(BaseModel):
     """用户偏好的结构化存储。以collection形式"""
     language: str = Field(description="The language of the user, for task storage and reply")
     content: str = Field(description="The instruction text")
+    key: str = Field(description="The uuid of the instruction.")
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> "Instruction":
-        return cls.parse_obj(data)
+        return cls.model_validate(data)
 
 class CustomState(MessagesState, total=False):
     """继承自 MessagesState，增加 search_results 用于保存网络搜索结果。"""
