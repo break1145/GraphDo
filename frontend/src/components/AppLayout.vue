@@ -1,15 +1,36 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+  <div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex flex-col">
     <!-- Header -->
-    <header class="bg-white/80 backdrop-blur-sm border-b border-blue-200 sticky top-0 z-50">
+    <header class="bg-white/80 backdrop-blur-sm border-b border-blue-200 sticky top-0 z-50 flex-shrink-0">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center h-16">
           <div class="flex items-center space-x-3">
             <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
               <CheckSquare class="w-5 h-5 text-white" />
             </div>
-            <h1 class="text-xl font-bold text-gray-900">Todo Agent</h1>
+            <h1 class="text-xl font-bold text-gray-900">Graph Do</h1>
           </div>
+          
+          <!-- User ID Input - 移动到header中并美化 -->
+          <div class="flex items-center space-x-3">
+            <div class="flex items-center space-x-2 bg-white/60 backdrop-blur-sm rounded-lg px-3 py-2 border border-blue-200">
+              <User class="w-4 h-4 text-gray-500" />
+              <input
+                id="userId"
+                v-model="currentUserId"
+                type="text"
+                placeholder="Enter User ID"
+                class="bg-transparent border-0 outline-none text-sm text-gray-700 placeholder-gray-500 w-32 focus:w-40 transition-all duration-200"
+              />
+              <button
+                @click="loadUserData"
+                class="ml-2 px-3 py-1 bg-gradient-to-r from-blue-500 to-indigo-600 text-white text-xs rounded-md hover:from-blue-600 hover:to-indigo-700 transition-all duration-200 shadow-sm hover:shadow-md"
+              >
+                Load
+              </button>
+            </div>
+          </div>
+          
           <nav class="flex space-x-1">
             <router-link
               v-for="tab in tabs"
@@ -30,45 +51,25 @@
       </div>
     </header>
 
-    <!-- User ID Input -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-      <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
-        <div class="flex items-center space-x-4">
-          <label for="userId" class="text-sm font-medium text-gray-700">User ID:</label>
-          <input
-            id="userId"
-            v-model="currentUserId"
-            type="text"
-            placeholder="Enter your user ID"
-            class="px-3 py-1 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
-          />
-          <button
-            @click="loadUserData"
-            class="px-3 py-1 bg-blue-500 text-white text-sm rounded hover:bg-blue-600 transition-colors duration-200"
-          >
-            Load Data
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Main Content -->
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Main Content - 使用 flex-1 填满剩余空间 -->
+    <main class="flex-1 flex flex-col">
       <!-- Loading State -->
       <div v-if="isLoading" class="flex justify-center items-center py-12">
         <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
       </div>
 
       <!-- Error State -->
-      <div v-if="error" class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+      <div v-if="error" class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6 mx-4">
         <div class="flex items-center">
           <AlertCircle class="w-5 h-5 text-red-500 mr-2" />
           <span class="text-red-700">{{ error }}</span>
         </div>
       </div>
 
-      <!-- Page Content -->
-      <slot />
+      <!-- Page Content - 填满剩余空间 -->
+      <div class="flex-1 flex flex-col">
+        <slot />
+      </div>
     </main>
   </div>
 </template>
