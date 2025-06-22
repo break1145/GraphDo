@@ -37,6 +37,8 @@ services:
       postgres:
         condition: service_healthy
     restart: unless-stopped
+    ports:
+      - "8000:8000"
 
 
   frontend:
@@ -49,6 +51,8 @@ services:
     environment:
       - http_proxy=http://172.17.0.1:7890
       - https_proxy=http://172.17.0.1:7890
+      - VITE_BACKEND_URL=http://47.117.125.48:8000
+
     ports:
       - "80:80"
     depends_on:
