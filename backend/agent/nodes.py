@@ -141,7 +141,6 @@ def update_todos(state: CustomState, config: RunnableConfig, store: BaseStore):
 
     tool_calls = state['messages'][-1].tool_calls
 
-    # 可选：打印工具结果供开发调试
     print("[工具调用] ToDo 更新：", extract_tool_info(spy.called_tools, tool_name))
 
     return {

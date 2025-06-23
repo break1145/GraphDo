@@ -36,7 +36,7 @@ def extract_tool_info(tool_calls, schema_name="Memory"):
                     'type': 'update',
                     'doc_id': call['args']['json_doc_id'],
                     'planned_edits': call['args'].get("planned_edits", []),
-                    'value': call['args']['patches'][0]['value']
+                    'value': call['args']['patches'][0].get('value')
                 })
             elif call['name'] == schema_name:
                 changes.append({
